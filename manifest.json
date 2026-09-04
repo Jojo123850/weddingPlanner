@@ -1,6 +1,6 @@
 {
   "short_name": "Mariage",
-  "name": "Organisation du Mariage",
+  "name": "Mon Mariage — Dashboard",
   "icons": [
     {
       "src": "icon-192.png",
@@ -14,8 +14,8 @@
     }
   ],
   "start_url": "./",
-  "background_color": "#F7F4EC",
-  "theme_color": "#4C7A5B",
+  "background_color": "#FAF7F2",
+  "theme_color": "#2D4A3E",
   "display": "standalone",
   "orientation": "portrait"
 }
