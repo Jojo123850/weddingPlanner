@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mariage E&M">
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
 
 <script>
   const manifestData = {
@@ -181,33 +181,41 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-soft);
+    gap: 20px;
   }
-  .hero-info h1 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--sage-dark); }
-  .hero-info p { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+  
+  .hero-info h1 { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 26px; 
+    color: var(--sage-dark); 
+    line-height: 1.25;
+  }
+  .hero-info p { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
 
   .countdown-badge {
     background: #ffffff;
     border: 1px solid var(--panel-border);
     padding: 12px 16px;
     border-radius: var(--radius-lg);
-    text-align: right;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    min-width: 170px;
   }
   .countdown-value { font-size: 22px; font-weight: 800; color: var(--sage-primary); }
   
   .wedding-date-input {
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-sm);
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 6px 10px;
+    font-size: 13px;
     color: var(--sage-dark);
     background: var(--bg-main);
     outline: none;
     cursor: pointer;
+    width: 100%;
   }
 
   /* Metrics */
@@ -329,14 +337,41 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
 
-  /* Responsive Mobile */
+  /* OPTIMISATIONS MOBILES */
   @media (max-width: 768px) {
-    .app-container { flex-direction: column; padding: 12px; gap: 16px; }
+    .app-container { flex-direction: column; padding: 12px; gap: 14px; }
     .sidebar { width: 100%; padding: 16px; border-radius: var(--radius-lg); }
-    .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; margin-top: 16px; -webkit-overflow-scrolling: touch; }
+    .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; margin-top: 14px; -webkit-overflow-scrolling: touch; }
     .nav-btn { padding: 8px 14px; font-size: 13px; }
-    .hero-card { flex-direction: column; align-items: flex-start; gap: 16px; padding: 18px; }
-    .countdown-badge { width: 100%; text-align: left; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+    
+    .hero-card { 
+      flex-direction: column; 
+      align-items: stretch; 
+      gap: 14px; 
+      padding: 16px; 
+    }
+    .hero-info h1 { 
+      font-size: 18px; 
+      line-height: 1.3;
+    }
+    .hero-info p {
+      font-size: 12px;
+    }
+
+    .countdown-badge { 
+      width: 100%; 
+      display: flex; 
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+    }
+    
+    .countdown-header-mobile {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .metrics-grid { grid-template-columns: 1fr; gap: 10px; }
     .metric-card { padding: 14px; }
     .dashboard-section { padding: 16px; border-radius: var(--radius-lg); }
@@ -383,13 +418,15 @@
     
     <div class="hero-card">
       <div class="hero-info">
-        <h1>Martiny & Ezekia's Wedding Organization</h1>
+        <h1>Martiny & Ezekia's Wedding</h1>
         <p>Planning partagé modifiable par lien pour les 4 collaborateurs autorisés.</p>
       </div>
       <div class="countdown-badge">
-        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Date du Mariage</div>
+        <div class="countdown-header-mobile">
+          <span style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Date du Mariage</span>
+          <span class="countdown-value" id="cdVal">Définir date</span>
+        </div>
         <input type="date" id="weddingDate" class="wedding-date-input" onchange="updateCountdown()">
-        <div class="countdown-value" id="cdVal">Définir date</div>
       </div>
     </div>
 
