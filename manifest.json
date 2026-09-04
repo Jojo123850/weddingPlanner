@@ -1,0 +1,21 @@
+{
+  "short_name": "Mariage",
+  "name": "Organisation du Mariage",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./",
+  "background_color": "#F7F4EC",
+  "theme_color": "#4C7A5B",
+  "display": "standalone",
+  "orientation": "portrait"
+}

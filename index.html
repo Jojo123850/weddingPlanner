@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organisation du mariage</title>
+
+<!-- Configuration PWA (Écran d'accueil) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4C7A5B">
+<!-- Support spécifique pour iOS / Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mariage">
+
+<style>
+  :root {
+    --bg: #F7F4EC;
+    --surface: #FFFFFF;
+    --surface-alt: #F0EBDD;
+    --border: #E4DEC9;
+    --ink: #2A2E27;
+    --ink-soft: #767C6E;
+    --green: #4C7A5B;
+    --green-dark: #345C42;
+    --green-soft: #DCEBDF;
+    --amber: #B4863B;
+    --amber-soft: #F3E4C8;
+    --red: #B04A3E;
+    --red-soft: #F4DDD8;
+    --navy: #47597A;
+    --navy-soft: #DEE6F0;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 90px; }
+
+  /* ---------- HEADER ---------- */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 22px; }
+  .brand { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+  .brand-sub { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .countdown-pill {
+    display: flex; align-items: center; gap: 10px; background: var(--green); color: white;
+    padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 22px; letter-spacing: -0.01em;
+  }
+  .countdown-pill .cd-label { font-size: 11px; font-weight: 500; opacity: 0.85; letter-spacing: 0.02em; }
+  .date-edit { background: none; border: none; text-decoration: underline; color: var(--ink-soft); font-size: 12.5px; cursor: pointer; padding: 0; margin-left: 4px; }
+  .date-setup { margin: 10px 0 18px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .date-setup input[type="date"] { font-family: var(--sans); font-size: 14px; padding: 8px 10px; border: 1px solid var(--border); background: white; border-radius: 8px; color: var(--ink); }
+  .date-setup button { font-family: var(--sans); font-weight: 600; font-size: 13px; background: var(--green); color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; }
+
+  /* ---------- STAT CARDS ---------- */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 26px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .stat-card .num { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--green-dark); }
+  .stat-card.is-late .num { color: var(--red); }
+  .stat-card .label { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+
+  /* ---------- NAV ---------- */
+  nav.section-tabs { display: flex; gap: 4px; background: var(--surface-alt); padding: 4px; border-radius: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  nav.section-tabs button {
+    flex: 1; min-width: 120px; background: none; border: none; color: var(--ink-soft);
+    font-family: var(--sans); font-weight: 600; font-size: 13.5px; padding: 9px 10px; cursor: pointer; border-radius: 9px;
+  }
+  nav.section-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .section-count { font-weight: 500; opacity: 0.6; }
+
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+
+  nav.tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  nav.tabs button {
+    background: var(--surface); border: 1px solid var(--border); font-family: var(--sans); font-weight: 600;
+    font-size: 13px; color: var(--ink-soft); padding: 7px 14px; cursor: pointer; border-radius: 999px;
+  }
+  nav.tabs button.active { background: var(--green); border-color: var(--green); color: white; }
+
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+  .group-title { font-weight: 700; font-size: 13px; color: var(--ink-soft); margin: 22px 0 10px; text-transform: none; }
+  .group-title.late { color: var(--red); }
+  .group-title:first-child { margin-top: 0; }
+
+  /* ---------- ROWS (cards) ---------- */
+  ul.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  li.row {
+    display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  }
+  li.row.late { border-left: 3px solid var(--red); }
+  li.row.today { border-left: 3px solid var(--amber); }
+  li.row.done, li.row.ok { border-left: 3px solid var(--green); }
+  li.row.done { opacity: 0.6; }
+
+  li.row input[type="checkbox"] { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+  .row-body { flex: 1; min-width: 0; }
+  .row-title { font-size: 14.5px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  li.row.done .row-title { text-decoration: line-through; font-weight: 500; }
+  .row-meta { margin-top: 6px; font-size: 12.5px; color: var(--ink-soft); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .pill-green { background: var(--green-soft); color: var(--green-dark); }
+  .pill-amber { background: var(--amber-soft); color: var(--amber); }
+  .pill-red { background: var(--red-soft); color: var(--red); }
+  .pill-navy { background: var(--navy-soft); color: var(--navy); }
+  .pill-neutral { background: var(--surface-alt); color: var(--ink-soft); }
+
+  select.pill-select {
+    border: none; cursor: pointer; appearance: none; -webkit-appearance: none; font-family: var(--sans);
+  }
+  select.pill-select:hover { filter: brightness(0.96); }
+
+  .row-del { background: none; border: none; color: var(--ink-soft); font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+  .row-del:hover { color: var(--red); }
+
+  .empty { font-size: 14px; color: var(--ink-soft); padding: 14px 0; }
+  .person-block { margin-bottom: 22px; }
+  .person-name { font-weight: 700; font-size: 14.5px; margin-bottom: 8px; color: var(--ink); }
+
+  .search-box {
+    width: 100%; font-family: var(--sans); font-size: 14px; padding: 10px 14px; border: 1px solid var(--border);
+    background: var(--surface); border-radius: 10px; color: var(--ink); margin-bottom: 16px;
+  }
+
+  .add-toggle {
+    margin-top: 18px; background: var(--surface-alt); border: 1px dashed var(--border); color: var(--ink-soft);
+    font-family: var(--sans); font-weight: 600; font-size: 13.5px; padding: 12px 14px; cursor: pointer; width: 100%; text-align: left; border-radius: 12px;
+  }
+  .add-toggle:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-soft); }
+
+  form.add-form {
+    margin-top: 10px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    display: none; flex-direction: column; gap: 10px;
+  }
+  form.add-form.open { display: flex; }
+  form.add-form label { font-size: 12px; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 4px; }
+  form.add-form input, form.add-form select {
+    width: 100%; font-family: var(--sans); font-size: 14px; padding: 9px 10px; border: 1px solid var(--border);
+    background: var(--bg); border-radius: 8px; color: var(--ink);
+  }
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .form-row > div { flex: 1; min-width: 130px; }
+  .form-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .form-actions button { font-family: var(--sans); font-weight: 600; font-size: 14px; padding: 9px 18px; border-radius: 8px; cursor: pointer; border: none; }
+  .btn-save { background: var(--green); color: white; }
+  .btn-cancel { background: none; border: 1px solid var(--border); color: var(--ink-soft); }
+
+  /* ---------- TABLES GRID ---------- */
+  .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .table-card.unassigned { border-style: dashed; grid-column: 1 / -1; }
+  .table-head { display: flex; justify-content: space-between; align-items: center; }
+  .table-name { font-weight: 700; font-size: 15px; }
+  .table-del { background: none; border: none; color: var(--ink-soft); font-size: 12.5px; cursor: pointer; }
+  .table-del:hover { color: var(--red); }
+  .table-cap-row { display: flex; align-items: center; gap: 8px; }
+  .table-cap-bar { flex: 1; height: 6px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; }
+  .table-cap-fill { height: 100%; background: var(--green); border-radius: 999px; }
+  .table-cap-fill.over { background: var(--red); }
+  .table-cap-text { font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; }
+  .table-cap-text.over { color: var(--red); font-weight: 700; }
+  .table-guests { display: flex; flex-wrap: wrap; gap: 6px; }
+  .guest-chip { background: var(--surface-alt); color: var(--ink); font-size: 12px; padding: 4px 9px; border-radius: 999px; }
+  .table-guests .none { color: var(--ink-soft); font-size: 12.5px; font-style: italic; }
+
+  .loading-note { font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .countdown-pill { font-size: 18px; padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="brand">Organisation du mariage</div>
+      <div class="brand-sub" id="dateBlock"></div>
+    </div>
+    <div class="countdown-pill">
+      <span class="cd-label">JOURS</span>
+      <span id="countdown">—</span>
+    </div>
+  </div>
+
+  <div class="date-setup" id="dateSetup" style="display:none;">
+    <input type="date" id="dateInput">
+    <button id="dateSave">Enregistrer</button>
+  </div>
+
+  <div class="stats-grid" id="statsRow"></div>
+
+  <nav class="section-tabs" id="sectionTabs">
+    <button data-section="tasks" class="active">Tâches<span class="section-count" id="countTasks"></span></button>
+    <button data-section="providers">Prestataires<span class="section-count" id="countProviders"></span></button>
+    <button data-section="guests">Invités<span class="section-count" id="countGuests"></span></button>
+    <button data-section="tables">Plan de table<span class="section-count" id="countTables"></span></button>
+  </nav>
+
+  <!-- TASKS -->
+  <section class="panel active" id="panel-tasks">
+    <nav class="tabs" id="taskTabs">
+      <button data-view="today" class="active">Aujourd'hui</button>
+      <button data-view="week">Cette semaine</button>
+      <button data-view="all">Tout</button>
+      <button data-view="person">Par personne</button>
+    </nav>
+    <div id="taskContent"><p class="loading-note">Chargement…</p></div>
+    <button class="add-toggle" id="taskAddToggle">+ Ajouter une tâche</button>
+    <form class="add-form" id="taskForm">
+      <div><label for="tTitle">Tâche</label><input type="text" id="tTitle" required placeholder="Ex. Confirmer le traiteur"></div>
+      <div class="form-row">
+        <div><label for="tCategory">Catégorie</label>
+          <select id="tCategory">
+            <option>Prestataires</option><option>Invités</option><option>Logistique</option><option>Administratif</option><option>Jour J</option>
+          </select>
+        </div>
+        <div><label for="tDate">Échéance</label><input type="date" id="tDate" required></div>
+      </div>
+      <div><label for="tAssignee">Responsable</label><input type="text" id="tAssignee" list="peopleList" placeholder="Moi, Camille, témoin..."></div>
+      <div class="form-actions"><button type="submit" class="btn-save">Ajouter</button><button type="button" class="btn-cancel" data-cancel="taskForm">Annuler</button></div>
+    </form>
+  </section>
+
+  <!-- PROVIDERS -->
+  <section class="panel" id="panel-providers">
+    <div id="providerContent"><p class="loading-note">Chargement…</p></div>
+    <button class="add-toggle" id="providerAddToggle">+ Ajouter un prestataire</button>
+    <form class="add-form" id="providerForm">
+      <div class="form-row">
+        <div><label for="pName">Nom</label><input type="text" id="pName" required placeholder="Ex. Traiteur Delacroix"></div>
+        <div><label for="pCategory">Catégorie</label>
+          <select id="pCategory">
+            <option>Lieu</option><option>Traiteur</option><option>Photographe</option><option>Vidéaste</option>
+            <option>DJ / Musique</option><option>Fleuriste</option><option>Pâtissier</option><option>Robe / Costume</option><option>Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label for="pContact">Contact</label><input type="text" id="pContact" placeholder="Téléphone ou email"></div>
+        <div><label for="pStatus">Statut</label>
+          <select id="pStatus"><option>À contacter</option><option>En discussion</option><option>Confirmé</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label for="pDeposit">Acompte versé</label><input type="text" id="pDeposit" placeholder="Ex. 300€"></div>
+        <div><label for="pBalance">Solde restant</label><input type="text" id="pBalance" placeholder="Ex. 700€"></div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn-save">Ajouter</button><button type="button" class="btn-cancel" data-cancel="providerForm">Annuler</button></div>
+    </form>
+  </section>
+
+  <!-- GUESTS -->
+  <section class="panel" id="panel-guests">
+    <div id="guestContent"><p class="loading-note">Chargement…</p></div>
+    <button class="add-toggle" id="guestAddToggle">+ Ajouter un invité</button>
+    <form class="add-form" id="guestForm">
+      <div class="form-row">
+        <div><label for="gName">Nom</label><input type="text" id="gName" required placeholder="Ex. Julie Marchand"></div>
+        <div><label for="gRsvp">Réponse</label>
+          <select id="gRsvp"><option>En attente</option><option>Oui</option><option>Non</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label for="gDiet">Régime alimentaire</label><input type="text" id="gDiet" placeholder="Ex. Végétarien, allergie noix..."></div>
+        <div><label for="gTable">Table</label><select id="gTable"><option value="">Non assigné</option></select></div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn-save">Ajouter</button><button type="button" class="btn-cancel" data-cancel="guestForm">Annuler</button></div>
+    </form>
+  </section>
+
+  <!-- TABLES -->
+  <section class="panel" id="panel-tables">
+    <div id="tableContent"><p class="loading-note">Chargement…</p></div>
+    <button class="add-toggle" id="tableAddToggle">+ Ajouter une table</button>
+    <form class="add-form" id="tableForm">
+      <div class="form-row">
+        <div><label for="tabName">Nom de la table</label><input type="text" id="tabName" required placeholder="Ex. Table 1 - Famille"></div>
+        <div><label for="tabCap">Capacité</label><input type="number" id="tabCap" required placeholder="Ex. 8" min="1"></div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn-save">Ajouter</button><button type="button" class="btn-cancel" data-cancel="tableForm">Annuler</button></div>
+    </form>
+  </section>
+
+  <datalist id="peopleList"></datalist>
+
+</div>
+
+<script>
+(function(){
+  const K_DATE = 'wedding-date';
+  const K_TASKS = 'tasks';
+  const K_PROVIDERS = 'providers';
+  const K_GUESTS = 'guests';
+  const K_TABLES = 'tables';
+
+  let weddingDate = null;
+  let tasks = [], providers = [], guests = [], tables = [];
+  let taskView = 'today';
+
+  const esc = (s) => { const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; };
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  const daysBetween = (a,b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 86400000);
+  const formatDateFR = (iso) => new Date(iso+'T00:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+  const formatShort = (iso) => new Date(iso+'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+  const uid = (p) => p + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+
+  const seedTasks = (wd) => {
+    const off = (n) => { const d = new Date(wd+'T00:00:00'); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
+    return [
+      ["Confirmer date, heure et solde avec chaque prestataire","Prestataires",20],
+      ["Assigner un coordinateur jour J parmi les proches","Jour J",19],
+      ["Relancer les invités sans réponse","Invités",18],
+      ["Finaliser le plan de table","Invités",15],
+      ["Dernier essayage robe / costume","Logistique",13],
+      ["Confirmer couleurs et livraison avec le fleuriste","Prestataires",12],
+      ["Envoyer la playlist et les indispensables au DJ","Prestataires",11],
+      ["Vérifier les documents administratifs","Administratif",10],
+      ["Préparer les enveloppes de paiement / pourboires","Administratif",9],
+      ["Écrire la timeline heure par heure du jour J","Jour J",6],
+      ["Envoyer la timeline aux témoins et prestataires","Jour J",6],
+      ["Préparer le kit d'urgence","Logistique",5],
+      ["Faire la valise si départ en voyage de noces","Logistique",4],
+      ["Confirmer les livraisons du jour même","Jour J",1],
+      ["Remettre timeline et contacts au coordinateur","Jour J",1]
+    ].map(([title,category,n],i) => ({ id:'seed-'+i, title, category, due: off(n), assignee:'Moi', status:'todo' }));
+  };
+
+  async function loadAll() {
+    try { const r = await window.storage.get(K_DATE, true); weddingDate = r ? r.value : null; } catch(e){ weddingDate = null; }
+    try { const r = await window.storage.get(K_TASKS, true); tasks = r ? JSON.parse(r.value) : []; } catch(e){ tasks = []; }
+    try { const r = await window.storage.get(K_PROVIDERS, true); providers = r ? JSON.parse(r.value) : []; } catch(e){ providers = []; }
+    try { const r = await window.storage.get(K_GUESTS, true); guests = r ? JSON.parse(r.value) : []; } catch(e){ guests = []; }
+    try { const r = await window.storage.get(K_TABLES, true); tables = r ? JSON.parse(r.value) : []; } catch(e){ tables = []; }
+
+    if (!weddingDate) {
+      const d = new Date(); d.setDate(d.getDate()+21);
+      document.getElementById('dateInput').value = d.toISOString().slice(0,10);
+      document.getElementById('dateSetup').style.display = 'flex';
+    }
+    if (weddingDate && tasks.length === 0) { tasks = seedTasks(weddingDate); await save(K_TASKS, tasks); }
+
+    renderAll();
+  }
+
+  async function save(key, val) {
+    try { await window.storage.set(key, JSON.stringify(val), true); } catch(e) { console.error('Erreur de sauvegarde', key, e); }
+  }
+  async function saveDate(d) {
+    weddingDate = d;
+    try { await window.storage.set(K_DATE, d, true); } catch(e) { console.error(e); }
+    if (tasks.length === 0) { tasks = seedTasks(weddingDate); await save(K_TASKS, tasks); }
+    renderAll();
+  }
+
+  function renderHeader() {
+    const cd = document.getElementById('countdown');
+    const db = document.getElementById('dateBlock');
+    if (!weddingDate) { cd.textContent = '—'; db.innerHTML = ''; }
+    else {
+      const diff = daysBetween(todayISO(), weddingDate);
+      cd.textContent = diff >= 0 ? ('J-'+diff) : ('J+'+Math.abs(diff));
+      db.innerHTML = 'Mariage le ' + formatDateFR(weddingDate) + ' <button class="date-edit" id="dateEditBtn">modifier</button>';
+      document.getElementById('dateEditBtn').addEventListener('click', () => {
+        document.getElementById('dateInput').value = weddingDate;
+        document.getElementById('dateSetup').style.display = 'flex';
+      });
+    }
+    const today = todayISO();
+    const late = tasks.filter(t => t.status==='todo' && t.due < today).length;
+    const dueToday = tasks.filter(t => t.status==='todo' && t.due === today).length;
+    const delegated = tasks.filter(t => t.status==='todo' && t.assignee && t.assignee.trim().toLowerCase() !== 'moi').length;
+    document.getElementById('statsRow').innerHTML =
+      '<div class="stat-card is-late"><div class="num">'+late+'</div><div class="label">en retard</div></div>' +
+      '<div class="stat-card"><div class="num">'+dueToday+'</div><div class="label">aujourd\'hui</div></div>' +
+      '<div class="stat-card"><div class="num">'+delegated+'</div><div class="label">déléguées</div></div>';
+  }
+
+  function renderCounts() {
+    const openTasks = tasks.filter(t => t.status === 'todo').length;
+    document.getElementById('countTasks').textContent = openTasks ? ' ('+openTasks+')' : '';
+    document.getElementById('countProviders').textContent = providers.length ? ' ('+providers.length+')' : '';
+    document.getElementById('countGuests').textContent = guests.length ? ' ('+guests.length+')' : '';
+    document.getElementById('countTables').textContent = tables.length ? ' ('+tables.length+')' : '';
+  }
+
+  // ---------- TASKS ----------
+  function taskRow(t) {
+    const today = todayISO();
+    let cls = 'row';
+    if (t.status==='done') cls+=' done'; else if (t.due<today) cls+=' late'; else if (t.due===today) cls+=' today';
+    const meta = ['<span class="pill pill-green">'+esc(t.category)+'</span>'];
+    if (t.assignee) meta.push('<span class="pill pill-navy">'+esc(t.assignee)+'</span>');
+    meta.push('<span>'+formatShort(t.due)+'</span>');
+    return '<li class="'+cls+'" data-id="'+t.id+'">' +
+      '<input type="checkbox" '+(t.status==='done'?'checked':'')+' data-action="toggleTask" aria-label="Marquer comme fait">' +
+      '<div class="row-body"><div class="row-title">'+esc(t.title)+'</div><div class="row-meta">'+meta.join('')+'</div></div>' +
+      '<button class="row-del" data-action="delTask" aria-label="Supprimer">×</button></li>';
+  }
+  function listOrEmpty(items, mapFn, emptyMsg) {
+    if (!items.length) return '<p class="empty">'+emptyMsg+'</p>';
+    return '<ul class="rows">'+items.map(mapFn).join('')+'</ul>';
+  }
+  function renderTasks() {
+    const el = document.getElementById('taskContent');
+    const today = todayISO();
+    let html = '';
+    if (taskView === 'today') {
+      const late = tasks.filter(t=>t.status==='todo'&&t.due<today).sort((a,b)=>a.due.localeCompare(b.due));
+      const dueToday = tasks.filter(t=>t.status==='todo'&&t.due===today);
+      if (late.length) html += '<p class="group-title late">En retard</p>'+listOrEmpty(late, taskRow, '');
+      html += '<p class="group-title">Aujourd\'hui</p>'+listOrEmpty(dueToday, taskRow, "Rien de prévu aujourd'hui.");
+    } else if (taskView === 'week') {
+      const in7 = new Date(); in7.setDate(in7.getDate()+7); const limit = in7.toISOString().slice(0,10);
+      const late = tasks.filter(t=>t.status==='todo'&&t.due<today).sort((a,b)=>a.due.localeCompare(b.due));
+      const week = tasks.filter(t=>t.status==='todo'&&t.due>=today&&t.due<=limit).sort((a,b)=>a.due.localeCompare(b.due));
+      if (late.length) html += '<p class="group-title late">En retard</p>'+listOrEmpty(late, taskRow, '');
+      html += '<p class="group-title">Les 7 prochains jours</p>'+listOrEmpty(week, taskRow, 'Rien de prévu cette semaine.');
+    } else if (taskView === 'all') {
+      const late = tasks.filter(t=>t.status==='todo'&&t.due<today).sort((a,b)=>a.due.localeCompare(b.due));
+      const upcoming = tasks.filter(t=>t.status==='todo'&&t.due>=today).sort((a,b)=>a.due.localeCompare(b.due));
+      const done = tasks.filter(t=>t.status==='done').sort((a,b)=>a.due.localeCompare(b.due));
+      if (late.length) html += '<p class="group-title late">En retard</p>'+listOrEmpty(late, taskRow, '');
+      html += '<p class="group-title">À venir</p>'+listOrEmpty(upcoming, taskRow, 'Aucune tâche à venir.');
+      if (done.length) html += '<p class="group-title">Faites</p>'+listOrEmpty(done, taskRow, '');
+    } else if (taskView === 'person') {
+      const byPerson = {};
+      tasks.forEach(t => { const n = t.assignee && t.assignee.trim() ? t.assignee.trim() : 'Non assigné'; (byPerson[n]=byPerson[n]||[]).push(t); });
+      const names = Object.keys(byPerson).sort((a,b)=> a==='Moi'?-1:b==='Moi'?1:a.localeCompare(b));
+      if (!names.length) html = '<p class="empty">Aucune tâche pour le moment.</p>';
+      else names.forEach(n => { const list = byPerson[n].sort((a,b)=>a.due.localeCompare(b.due));
+        html += '<div class="person-block"><p class="person-name">'+esc(n)+'</p>'+listOrEmpty(list, taskRow, '')+'</div>'; });
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('[data-action="toggleTask"]').forEach(cb => cb.addEventListener('change', async e => {
+      const id = e.target.closest('li').dataset.id; const t = tasks.find(x=>x.id===id);
+      if (t) { t.status = t.status==='done'?'todo':'done'; await save(K_TASKS, tasks); renderAll(); }
+    }));
+    el.querySelectorAll('[data-action="delTask"]').forEach(btn => btn.addEventListener('click', async e => {
+      const id = e.target.closest('li').dataset.id; tasks = tasks.filter(x=>x.id!==id); await save(K_TASKS, tasks); renderAll();
+    }));
+  }
+
+  // ---------- PROVIDERS ----------
+  function providerRow(p) {
+    let cls = 'row'; if (p.status==='Confirmé') cls+=' ok';
+    const meta = ['<span class="pill pill-neutral">'+esc(p.category)+'</span>'];
+    if (p.contact) meta.push('<span>'+esc(p.contact)+'</span>');
+    if (p.deposit) meta.push('<span class="pill pill-green">versé '+esc(p.deposit)+'</span>');
+    if (p.balance) meta.push('<span class="pill pill-red">reste '+esc(p.balance)+'</span>');
+    const statusPillClass = p.status==='Confirmé' ? 'pill-green' : p.status==='En discussion' ? 'pill-amber' : 'pill-navy';
+    const statusSelect = '<select class="pill pill-select '+statusPillClass+'" data-action="changeProviderStatus" data-id="'+p.id+'">' +
+      ['À contacter','En discussion','Confirmé'].map(s=>'<option'+(s===p.status?' selected':'')+'>'+s+'</option>').join('') + '</select>';
+    return '<li class="'+cls+'" data-id="'+p.id+'" style="align-items:center;">' +
+      '<div class="row-body"><div class="row-title">'+esc(p.name)+' '+statusSelect+'</div><div class="row-meta">'+meta.join('')+'</div></div>' +
+      '<button class="row-del" data-action="delProvider" aria-label="Supprimer">×</button></li>';
+  }
+  function renderProviders() {
+    const el = document.getElementById('providerContent');
+    if (!providers.length) { el.innerHTML = '<p class="empty">Aucun prestataire ajouté pour le moment.</p>'; return; }
+    const order = { 'À contacter':0, 'En discussion':1, 'Confirmé':2 };
+    const sorted = [...providers].sort((a,b) => order[a.status]-order[b.status]);
+    el.innerHTML = '<ul class="rows">'+sorted.map(providerRow).join('')+'</ul>';
+    el.querySelectorAll('[data-action="changeProviderStatus"]').forEach(sel => sel.addEventListener('change', async e => {
+      const id = e.target.dataset.id; const p = providers.find(x=>x.id===id);
+      if (p) { p.status = e.target.value; await save(K_PROVIDERS, providers); renderAll(); }
+    }));
+    el.querySelectorAll('[data-action="delProvider"]').forEach(btn => btn.addEventListener('click', async e => {
+      if (!confirm('Supprimer ce prestataire ?')) return;
+      const id = e.target.closest('li').dataset.id; providers = providers.filter(x=>x.id!==id); await save(K_PROVIDERS, providers); renderAll();
+    }));
+  }
+
+  // ---------- GUESTS ----------
+  function guestRow(g) {
+    let cls = 'row'; if (g.rsvp==='Oui') cls+=' ok';
+    const rsvpPillClass = g.rsvp==='Oui' ? 'pill-green' : g.rsvp==='Non' ? 'pill-red' : 'pill-amber';
+    const rsvpSelect = '<select class="pill pill-select '+rsvpPillClass+'" data-action="changeGuestRsvp" data-id="'+g.id+'">' +
+      ['En attente','Oui','Non'].map(s=>'<option'+(s===g.rsvp?' selected':'')+'>'+s+'</option>').join('') + '</select>';
+    const tableOptions = '<option value="">Non assigné</option>' + tables.map(t=>'<option value="'+t.id+'"'+(t.id===g.tableId?' selected':'')+'>'+esc(t.name)+'</option>').join('');
+    const tableSelect = '<select class="pill pill-select pill-navy" data-action="changeGuestTable" data-id="'+g.id+'">'+tableOptions+'</select>';
+    const meta = [];
+    if (g.diet) meta.push('<span>'+esc(g.diet)+'</span>');
+    meta.push(tableSelect);
+    return '<li class="'+cls+'" data-id="'+g.id+'" style="align-items:center;">' +
+      '<div class="row-body"><div class="row-title">'+esc(g.name)+' '+rsvpSelect+'</div><div class="row-meta">'+meta.join('')+'</div></div>' +
+      '<button class="row-del" data-action="delGuest" aria-label="Supprimer">×</button></li>';
+  }
+  function renderGuests() {
+    const el = document.getElementById('guestContent');
+    const gTableSel = document.getElementById('gTable');
+    gTableSel.innerHTML = '<option value="">Non assigné</option>' + tables.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'</option>').join('');
+
+    if (!guests.length) { el.innerHTML = '<p class="empty">Aucun invité ajouté pour le moment.</p>'; return; }
+    const query = (document.getElementById('guestSearch') && document.getElementById('guestSearch').value || '').trim().toLowerCase();
+    const filtered = query ? guests.filter(g => g.name.toLowerCase().includes(query)) : guests;
+    const groups = [['Oui','Confirmés'],['En attente','En attente'],['Non','Déclinés']];
+    let html = '<input type="text" class="search-box" id="guestSearch" placeholder="Rechercher un invité..." value="'+esc(query)+'">';
+    if (!filtered.length) html += '<p class="empty">Aucun invité ne correspond à la recherche.</p>';
+    groups.forEach(([key,label]) => {
+      const list = filtered.filter(g=>g.rsvp===key);
+      if (list.length) html += '<p class="group-title">'+label+' ('+list.length+')</p>'+listOrEmpty(list, guestRow, '');
+    });
+    el.innerHTML = html;
+    const searchInput = document.getElementById('guestSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => renderGuests());
+      if (query) { searchInput.focus(); searchInput.setSelectionRange(query.length, query.length); }
+    }
+    el.querySelectorAll('[data-action="changeGuestRsvp"]').forEach(sel => sel.addEventListener('change', async e => {
+      const id = e.target.dataset.id; const g = guests.find(x=>x.id===id);
+      if (g) { g.rsvp = e.target.value; await save(K_GUESTS, guests); renderAll(); }
+    }));
+    el.querySelectorAll('[data-action="changeGuestTable"]').forEach(sel => sel.addEventListener('change', async e => {
+      const id = e.target.dataset.id; const g = guests.find(x=>x.id===id);
+      if (g) { g.tableId = e.target.value; await save(K_GUESTS, guests); renderAll(); }
+    }));
+    el.querySelectorAll('[data-action="delGuest"]').forEach(btn => btn.addEventListener('click', async e => {
+      if (!confirm('Supprimer cet invité ?')) return;
+      const id = e.target.closest('li').dataset.id; guests = guests.filter(x=>x.id!==id); await save(K_GUESTS, guests); renderAll();
+    }));
+  }
+
+  // ---------- TABLES ----------
+  function renderTables() {
+    const el = document.getElementById('tableContent');
+    if (!tables.length) {
+      el.innerHTML = '<p class="empty">Aucune table créée pour le moment.</p>';
+      return;
+    }
+    const unassigned = guests.filter(g => g.rsvp === 'Oui' && !g.tableId);
+    let html = '<div class="tables-grid">';
+    
+    if (unassigned.length) {
+      html += '<div class="table-card unassigned">' +
+        '<div class="table-head"><span class="table-name">Invités confirmés non placés (' + unassigned.length + ')</span></div>' +
+        '<div class="table-guests">' + unassigned.map(g => '<span class="guest-chip">' + esc(g.name) + '</span>').join('') + '</div>' +
+        '</div>';
+    }
+
+    tables.forEach(t => {
+      const assignedGuests = guests.filter(g => g.tableId === t.id);
+      const cap = parseInt(t.cap, 10) || 0;
+      const count = assignedGuests.length;
+      const pct = cap > 0 ? Math.min(100, Math.round((count / cap) * 100)) : 0;
+      const isOver = count > cap;
+
+      html += '<div class="table-card" data-id="' + t.id + '">' +
+        '<div class="table-head">' +
+          '<span class="table-name">' + esc(t.name) + '</span>' +
+          '<button class="table-del" data-action="delTable" aria-label="Supprimer">Supprimer</button>' +
+        '</div>' +
+        '<div class="table-cap-row">' +
+          '<div class="table-cap-bar"><div class="table-cap-fill ' + (isOver ? 'over' : '') + '" style="width:' + pct + '%"></div></div>' +
+          '<span class="table-cap-text ' + (isOver ? 'over' : '') + '">' + count + '/' + cap + '</span>' +
+        '</div>' +
+        '<div class="table-guests">' +
+          (assignedGuests.length ? assignedGuests.map(g => '<span class="guest-chip">' + esc(g.name) + '</span>').join('') : '<span class="none">Aucun invité</span>') +
+        '</div>' +
+      '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+
+    el.querySelectorAll('[data-action="delTable"]').forEach(btn => btn.addEventListener('click', async e => {
+      if (!confirm('Supprimer cette table ?')) return;
+      const id = e.target.closest('.table-card').dataset.id;
+      tables = tables.filter(x => x.id !== id);
+      guests.forEach(g => { if (g.tableId === id) g.tableId = ''; });
+      await save(K_TABLES, tables);
+      await save(K_GUESTS, guests);
+      renderAll();
+    }));
+  }
+
+  function renderDatalist() {
+    const list = document.getElementById('peopleList');
+    const set = new Set(['Moi']);
+    tasks.forEach(t => { if (t.assignee) set.add(t.assignee.trim()); });
+    list.innerHTML = Array.from(set).map(p => '<option value="' + esc(p) + '">').join('');
+  }
+
+  function renderAll() {
+    renderHeader();
+    renderCounts();
+    renderTasks();
+    renderProviders();
+    renderGuests();
+    renderTables();
+    renderDatalist();
+  }
+
+  // ---------- EVENTS & FORMS ----------
+  document.getElementById('dateSave').addEventListener('click', async () => {
+    const v = document.getElementById('dateInput').value;
+    if (v) {
+      await saveDate(v);
+      document.getElementById('dateSetup').style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('#sectionTabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#sectionTabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('section.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.section).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('#taskTabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#taskTabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      taskView = btn.dataset.view;
+      renderTasks();
+    });
+  });
+
+  const setupFormToggle = (toggleId, formId) => {
+    const toggle = document.getElementById(toggleId);
+    const form = document.getElementById(formId);
+    toggle.addEventListener('click', () => form.classList.toggle('open'));
+  };
+
+  setupFormToggle('taskAddToggle', 'taskForm');
+  setupFormToggle('providerAddToggle', 'providerForm');
+  setupFormToggle('guestAddToggle', 'guestForm');
+  setupFormToggle('tableAddToggle', 'tableForm');
+
+  document.querySelectorAll('.btn-cancel').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const fid = e.target.dataset.cancel;
+      document.getElementById(fid).classList.remove('open');
+    });
+  });
+
+  document.getElementById('taskForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const title = document.getElementById('tTitle').value.trim();
+    const category = document.getElementById('tCategory').value;
+    const due = document.getElementById('tDate').value;
+    const assignee = document.getElementById('tAssignee').value.trim() || 'Moi';
+    if (!title || !due) return;
+    tasks.push({ id: uid('t'), title, category, due, assignee, status: 'todo' });
+    await save(K_TASKS, tasks);
+    e.target.reset();
+    e.target.classList.remove('open');
+    renderAll();
+  });
+
+  document.getElementById('providerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('pName').value.trim();
+    const category = document.getElementById('pCategory').value;
+    const contact = document.getElementById('pContact').value.trim();
+    const status = document.getElementById('pStatus').value;
+    const deposit = document.getElementById('pDeposit').value.trim();
+    const balance = document.getElementById('pBalance').value.trim();
+    if (!name) return;
+    providers.push({ id: uid('p'), name, category, contact, status, deposit, balance });
+    await save(K_PROVIDERS, providers);
+    e.target.reset();
+    e.target.classList.remove('open');
+    renderAll();
+  });
+
+  document.getElementById('guestForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('gName').value.trim();
+    const rsvp = document.getElementById('gRsvp').value;
+    const diet = document.getElementById('gDiet').value.trim();
+    const tableId = document.getElementById('gTable').value;
+    if (!name) return;
+    guests.push({ id: uid('g'), name, rsvp, diet, tableId });
+    await save(K_GUESTS, guests);
+    e.target.reset();
+    e.target.classList.remove('open');
+    renderAll();
+  });
+
+  document.getElementById('tableForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('tabName').value.trim();
+    const cap = document.getElementById('tabCap').value.trim();
+    if (!name || !cap) return;
+    tables.push({ id: uid('tab'), name, cap });
+    await save(K_TABLES, tables);
+    e.target.reset();
+    e.target.classList.remove('open');
+    renderAll();
+  });
+
+  loadAll();
+})();
+</script>
+</body>
+</html>
+
+
+
