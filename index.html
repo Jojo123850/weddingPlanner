@@ -4,17 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Martiny & Ezekia's Wedding Organization</title>
+
+<!-- Configuration PWA & Écran d'accueil -->
+<meta name="theme-color" content="#2D4A3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mariage E&M">
+
+<!-- Logo E & M SVG dynamique comme Favicon & Apple Touch Icon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Playfair Display, serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Playfair Display, serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>">
+
+<!-- Manifest PWA Intégré -->
+<script>
+  const manifestData = {
+    "short_name": "Mariage E&M",
+    "name": "Martiny & Ezekia — Dashboard",
+    "icons": [
+      {
+        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23FAF7F2'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='65' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='45'>&amp;</tspan>M</text></svg>",
+        "type": "image/svg+xml",
+        "sizes": "192x192"
+      },
+      {
+        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>",
+        "type": "image/svg+xml",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "./",
+    "background_color": "#FAF7F2",
+    "theme_color": "#2D4A3E",
+    "display": "standalone",
+    "orientation": "portrait"
+  };
+  const stringManifest = JSON.stringify(manifestData);
+  const blob = new Blob([stringManifest], {type: 'application/json'});
+  const manifestURL = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestURL;
+  document.head.appendChild(link);
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --bg-main: #f4efe6;
-    --panel-bg: rgba(255, 255, 255, 0.85);
+    --bg-main: #FAF7F2;
+    --panel-bg: rgba(255, 255, 255, 0.88);
     --panel-border: rgba(200, 190, 175, 0.6);
     
-    --sage-dark: #3a5343;
+    --sage-dark: #2D4A3E;
     --sage-primary: #52795d;
     --sage-light: #e3ede5;
     --sage-accent: #729c7d;
@@ -35,7 +78,7 @@
     --radius-sm: 6px;
     
     --blur: blur(16px);
-    --shadow-soft: 0 8px 24px rgba(58, 83, 67, 0.08);
+    --shadow-soft: 0 8px 24px rgba(45, 74, 62, 0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -57,6 +100,19 @@
     gap: 24px;
   }
 
+  /* Header Brand avec Logo E&M */
+  .brand-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
   /* Sidebar */
   .sidebar {
     width: 280px;
@@ -74,7 +130,7 @@
 
   .brand-title {
     font-family: 'Playfair Display', serif;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--sage-dark);
     line-height: 1.2;
@@ -86,7 +142,7 @@
     letter-spacing: 0.1em;
     color: var(--warm-gold);
     font-weight: 700;
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .nav-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; }
@@ -295,8 +351,18 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div>
-      <div class="brand-title">Martiny & Ezekia's Wedding Organization</div>
-      <div class="brand-subtitle">Espace d'organisation</div>
+      <div class="brand-header">
+        <!-- Logo SVG E&M -->
+        <svg class="brand-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <rect width="512" height="512" rx="120" fill="#FAF7F2"/>
+          <circle cx="256" cy="256" r="210" fill="none" stroke="#C59B27" stroke-width="12"/>
+          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="'Playfair Display', serif" font-size="170" font-weight="bold" fill="#2D4A3E">E<tspan fill="#C59B27" font-size="120">&amp;</tspan>M</text>
+        </svg>
+        <div>
+          <div class="brand-title">Martiny & Ezekia</div>
+          <div class="brand-subtitle">Organisation</div>
+        </div>
+      </div>
       
       <nav class="nav-menu">
         <button class="nav-btn active" data-tab="tasks">Tâches & Planning</button>
@@ -308,7 +374,7 @@
     </div>
 
     <div style="font-size: 11px; color: var(--text-muted); margin-top: 16px;">
-      Tableau de bord collaboratif
+      Tableau de bord collaboratif PWA
     </div>
   </aside>
 
