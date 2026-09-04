@@ -5,29 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Martiny & Ezekia's Wedding Organization</title>
 
-<!-- Configuration PWA & Écran d'accueil -->
 <meta name="theme-color" content="#2D4A3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mariage E&M">
 
-<!-- Logo E & M SVG dynamique comme Favicon & Apple Touch Icon -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Playfair Display, serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Playfair Display, serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
 
-<!-- Manifest PWA Intégré -->
 <script>
   const manifestData = {
     "short_name": "Mariage E&M",
     "name": "Martiny & Ezekia — Dashboard",
     "icons": [
       {
-        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23FAF7F2'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='65' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='45'>&amp;</tspan>M</text></svg>",
+        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23FAF7F2'/><text x='35' y='125' font-family='serif' font-size='90' font-weight='bold' fill='%232D4A3E'>E</text><text x='96' y='115' font-family='serif' font-size='50' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='157' y='125' font-family='serif' font-size='90' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>",
         "type": "image/svg+xml",
         "sizes": "192x192"
       },
       {
-        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><circle cx='256' cy='256' r='210' fill='none' stroke='%23C59B27' stroke-width='8'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='170' font-weight='bold' fill='%232D4A3E'>E<tspan fill='%23C59B27' font-size='120'>&amp;</tspan>M</text></svg>",
+        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>",
         "type": "image/svg+xml",
         "sizes": "512x512"
       }
@@ -100,16 +97,16 @@
     gap: 24px;
   }
 
-  /* Header Brand avec Logo E&M */
+  /* Header Brand */
   .brand-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
   }
 
   .brand-logo {
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 42px;
     flex-shrink: 0;
   }
 
@@ -191,13 +188,27 @@
   .countdown-badge {
     background: #ffffff;
     border: 1px solid var(--panel-border);
-    padding: 12px 20px;
+    padding: 12px 16px;
     border-radius: var(--radius-lg);
     text-align: right;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
-  .countdown-value { font-size: 24px; font-weight: 800; color: var(--sage-primary); }
+  .countdown-value { font-size: 22px; font-weight: 800; color: var(--sage-primary); }
+  
+  .wedding-date-input {
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--sage-dark);
+    background: var(--bg-main);
+    outline: none;
+    cursor: pointer;
+  }
 
   /* Metrics */
   .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -318,14 +329,6 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
 
-  /* Responsive Tablette */
-  @media (max-width: 1024px) {
-    .app-container { padding: 16px; gap: 16px; }
-    .sidebar { width: 230px; padding: 20px 14px; }
-    .hero-card { padding: 20px; }
-    .hero-info h1 { font-size: 22px; }
-  }
-
   /* Responsive Mobile */
   @media (max-width: 768px) {
     .app-container { flex-direction: column; padding: 12px; gap: 16px; }
@@ -333,7 +336,7 @@
     .nav-menu { flex-direction: row; overflow-x: auto; padding-bottom: 8px; margin-top: 16px; -webkit-overflow-scrolling: touch; }
     .nav-btn { padding: 8px 14px; font-size: 13px; }
     .hero-card { flex-direction: column; align-items: flex-start; gap: 16px; padding: 18px; }
-    .countdown-badge { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .countdown-badge { width: 100%; text-align: left; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
     .metrics-grid { grid-template-columns: 1fr; gap: 10px; }
     .metric-card { padding: 14px; }
     .dashboard-section { padding: 16px; border-radius: var(--radius-lg); }
@@ -348,15 +351,13 @@
 <body>
 
 <div class="app-container">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div>
       <div class="brand-header">
-        <!-- Logo SVG E&M -->
-        <svg class="brand-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-          <rect width="512" height="512" rx="120" fill="#FAF7F2"/>
-          <circle cx="256" cy="256" r="210" fill="none" stroke="#C59B27" stroke-width="12"/>
-          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="'Playfair Display', serif" font-size="170" font-weight="bold" fill="#2D4A3E">E<tspan fill="#C59B27" font-size="120">&amp;</tspan>M</text>
+        <svg class="brand-logo" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+          <text x="10" y="120" font-family="'Playfair Display', serif" font-size="120" font-weight="600" fill="#2D4A3E">E</text>
+          <text x="100" y="105" font-family="'Playfair Display', serif" font-size="70" font-style="italic" fill="#C59B27" text-anchor="middle">&amp;</text>
+          <text x="190" y="120" font-family="'Playfair Display', serif" font-size="120" font-weight="600" fill="#C59B27" text-anchor="end">M</text>
         </svg>
         <div>
           <div class="brand-title">Martiny & Ezekia</div>
@@ -378,22 +379,20 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
     
-    <!-- HERO -->
     <div class="hero-card">
       <div class="hero-info">
         <h1>Martiny & Ezekia's Wedding Organization</h1>
         <p>Planning partagé modifiable par lien pour les 4 collaborateurs autorisés.</p>
       </div>
       <div class="countdown-badge">
-        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Compte à rebours</div>
-        <div class="countdown-value" id="cdVal">J-120</div>
+        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Date du Mariage</div>
+        <input type="date" id="weddingDate" class="wedding-date-input" onchange="updateCountdown()">
+        <div class="countdown-value" id="cdVal">Définir date</div>
       </div>
     </div>
 
-    <!-- METRICS -->
     <div class="metrics-grid">
       <div class="metric-card">
         <div>
@@ -418,7 +417,6 @@
       </div>
     </div>
 
-    <!-- TÂCHES -->
     <section class="dashboard-section active" id="panel-tasks">
       <div class="section-header">
         <div class="section-title">Tâches & Feuille de Route</div>
@@ -435,7 +433,6 @@
       <div class="item-list" id="taskList"></div>
     </section>
 
-    <!-- PRESTATAIRES -->
     <section class="dashboard-section" id="panel-providers">
       <div class="section-header">
         <div class="section-title">Prestataires & Contacts</div>
@@ -452,7 +449,6 @@
       <div class="item-list" id="provList"></div>
     </section>
 
-    <!-- INVITÉS -->
     <section class="dashboard-section" id="panel-guests">
       <div class="section-header">
         <div class="section-title">Liste des Invités</div>
@@ -471,7 +467,6 @@
       <div class="item-list" id="guestList"></div>
     </section>
 
-    <!-- TABLES -->
     <section class="dashboard-section" id="panel-tables">
       <div class="section-header">
         <div class="section-title">Plan de Table</div>
@@ -487,7 +482,6 @@
       <div class="item-list" id="tableList"></div>
     </section>
 
-    <!-- ACCÈS PAR LIEN (4 PERS MAX) -->
     <section class="dashboard-section" id="panel-team">
       <div class="section-header">
         <div class="section-title">Partage du Lien d'Édition (4 Collaborateurs Max)</div>
@@ -534,6 +528,43 @@
     { name: "Martiny", email: "martiny@mariage.com", role: "Marié(e)" },
     { name: "Ezekia", email: "ezekia@mariage.com", role: "Marié(e)" }
   ];
+
+  /* Calcul du Compte à Rebours Dynamique */
+  function updateCountdown() {
+    const inputDate = document.getElementById('weddingDate').value;
+    const cdVal = document.getElementById('cdVal');
+    
+    if (!inputDate) {
+      cdVal.textContent = "Définir date";
+      return;
+    }
+
+    localStorage.setItem('savedWeddingDate', inputDate);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(inputDate);
+    target.setHours(0, 0, 0, 0);
+
+    const diffTime = target - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      cdVal.textContent = `J-${diffDays}`;
+    } else if (diffDays === 0) {
+      cdVal.textContent = "Jour J !";
+    } else {
+      cdVal.textContent = "Mariés !";
+    }
+  }
+
+  function initWeddingDate() {
+    const saved = localStorage.getItem('savedWeddingDate');
+    if (saved) {
+      document.getElementById('weddingDate').value = saved;
+      updateCountdown();
+    }
+  }
 
   function toggleForm(id) {
     document.getElementById(id).classList.toggle('open');
@@ -593,7 +624,7 @@
     document.getElementById('fTable').reset(); toggleForm('fTable'); updateTableOptions(); render();
   }
 
-  /* Gestion de l'équipe : Ajout & Modification */
+  /* Gestion Équipe */
   function openAddTeamForm() {
     document.getElementById('mEditIndex').value = "-1";
     document.getElementById('fTeam').reset();
@@ -718,7 +749,7 @@
         `;
       }).join('');
 
-    // Équipe avec bouton de modification
+    // Équipe avec modification
     document.getElementById('teamList').innerHTML = team.map((m, i) => `
       <div class="glass-card">
         <div class="glass-card-header">
@@ -733,6 +764,7 @@
     `).join('');
   }
 
+  initWeddingDate();
   updateTableOptions();
   render();
 </script>
