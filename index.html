@@ -170,7 +170,27 @@
     margin-top: 4px;
   }
 
-  .nav-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; }
+  .btn-install {
+    display: none; /* Masqué par défaut, activé si éligible */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: var(--warm-gold);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(197, 155, 39, 0.3);
+    transition: all 0.2s ease;
+  }
+  .btn-install:hover { background: #b0891e; }
+
+  .nav-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 24px; }
   .nav-btn {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 16px;
@@ -399,6 +419,12 @@
           <div class="brand-subtitle">Organisation</div>
         </div>
       </div>
+
+      <!-- BOUTON D'INSTALLATION PWA -->
+      <button id="pwaInstallBtn" class="btn-install" onclick="triggerPwaInstall()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Installer sur l'écran d'accueil
+      </button>
       
       <nav class="nav-menu">
         <button class="nav-btn active" data-tab="tasks">Tâches & Planning</button>
@@ -560,6 +586,48 @@
 
   </main>
 </div>
+
+<script>
+  /* GESTION DE L'INSTALLATION PWA (ÉCRAN D'ACCUEIL) */
+  let deferredPrompt;
+  const installBtn = document.getElementById('pwaInstallBtn');
+
+  // Détection des appareils iOS
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+
+  // Détection si déjà installé
+  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'flex';
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (isIos() && !isInStandaloneMode()) {
+      if (installBtn) installBtn.style.display = 'flex';
+    }
+  });
+
+  window.triggerPwaInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      deferredPrompt = null;
+    } else if (isIos()) {
+      alert("Pour installer l'application sur votre iPhone :\n1. Cliquez sur le bouton 'Partager' (icône carré avec une flèche vers le haut)\n2. Sélectionnez 'Sur l'écran d'accueil'");
+    } else {
+      alert("L'application est déjà installée ou votre navigateur ne supporte pas le téléchargement direct.");
+    }
+  };
+</script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -825,7 +893,6 @@
         </div>
       `).join('');
 
-    // Affichage des invités avec Modifier et Supprimer
     document.getElementById('guestList').innerHTML = guests.length === 0
       ? '<div class="glass-card-sub">Aucun invité enregistré.</div>'
       : guests.map((g, i) => `
