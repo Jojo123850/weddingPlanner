@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Martiny & Ezekia's Wedding Organization</title>
 
 <meta name="theme-color" content="#2D4A3E">
@@ -10,38 +10,71 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mariage E&M">
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='Playfair Display, serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='Playfair Display, serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>">
+
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSU_E_M_PWA_ICON_FIXED">
 
 <script>
-  const manifestData = {
-    "short_name": "Mariage E&M",
-    "name": "Martiny & Ezekia — Dashboard",
-    "icons": [
-      {
-        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23FAF7F2'/><text x='35' y='125' font-family='serif' font-size='90' font-weight='bold' fill='%232D4A3E'>E</text><text x='96' y='115' font-family='serif' font-size='50' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='157' y='125' font-family='serif' font-size='90' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>",
-        "type": "image/svg+xml",
-        "sizes": "192x192"
-      },
-      {
-        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23FAF7F2'/><text x='110' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%232D4A3E'>E</text><text x='256' y='310' font-family='serif' font-size='140' font-style='italic' fill='%23C59B27' text-anchor='middle'>&amp;</text><text x='402' y='330' font-family='serif' font-size='240' font-weight='bold' fill='%23C59B27' text-anchor='end'>M</text></svg>",
-        "type": "image/svg+xml",
-        "sizes": "512x512"
-      }
-    ],
-    "start_url": "./",
-    "background_color": "#FAF7F2",
-    "theme_color": "#2D4A3E",
-    "display": "standalone",
-    "orientation": "portrait"
-  };
-  const stringManifest = JSON.stringify(manifestData);
-  const blob = new Blob([stringManifest], {type: 'application/json'});
-  const manifestURL = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = manifestURL;
-  document.head.appendChild(link);
+  // Conversion dynamique Canvas Vers PNG 512x512 pour le Manifest & iOS
+  function createIconDataURL() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Fond
+    ctx.fillStyle = '#FAF7F2';
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Bords arrondis décoratifs
+    ctx.fillStyle = '#2D4A3E';
+    ctx.font = 'bold 220px serif';
+    ctx.fillText('E', 80, 330);
+
+    ctx.fillStyle = '#C59B27';
+    ctx.font = 'italic 130px serif';
+    ctx.fillText('&', 256, 310);
+
+    ctx.font = 'bold 220px serif';
+    ctx.fillText('M', 315, 330);
+
+    return canvas.toDataURL('image/png');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const pngIcon = createIconDataURL();
+    
+    // Injecter le PNG pour Apple Touch Icon
+    const appleIcon = document.querySelector("link[rel='apple-touch-icon']");
+    if(appleIcon) appleIcon.href = pngIcon;
+
+    // Generer le Manifest avec icônes PNG compatibles iOS
+    const manifestData = {
+      "short_name": "Mariage E&M",
+      "name": "Martiny & Ezekia — Dashboard",
+      "icons": [
+        {
+          "src": pngIcon,
+          "type": "image/png",
+          "sizes": "512x512",
+          "purpose": "any maskable"
+        }
+      ],
+      "start_url": "./",
+      "background_color": "#FAF7F2",
+      "theme_color": "#2D4A3E",
+      "display": "standalone",
+      "orientation": "portrait"
+    };
+
+    const stringManifest = JSON.stringify(manifestData);
+    const blob = new Blob([stringManifest], {type: 'application/json'});
+    const manifestURL = URL.createObjectURL(blob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestURL;
+    document.head.appendChild(link);
+  });
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
