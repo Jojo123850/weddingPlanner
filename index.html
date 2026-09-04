@@ -170,7 +170,6 @@
     margin-top: 4px;
   }
 
-  /* BANNIÈRE D'INSTALLATION PWA DISCRÈTE ET BIEN PLACÉE */
   .pwa-banner {
     display: none;
     align-items: center;
@@ -289,6 +288,7 @@
     cursor: pointer;
   }
 
+  /* NOUVEAU DESIGN DES STATISTIQUES AVEC JAUGE DE PROGRESSION */
   .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .metric-card {
     background: var(--panel-bg);
@@ -296,10 +296,31 @@
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-lg);
     padding: 18px;
-    display: flex; justify-content: space-between; align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
     box-shadow: var(--shadow-soft);
   }
-  .metric-num { font-size: 26px; font-weight: 800; color: var(--sage-dark); margin-top: 6px; }
+  .metric-header { display: flex; justify-content: space-between; align-items: center; }
+  .metric-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .metric-num { font-size: 28px; font-weight: 800; color: var(--sage-dark); margin-top: 2px; }
+  .metric-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  
+  .progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: var(--sage-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--sage-primary);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .progress-bar-fill.gold { background: var(--warm-gold); }
 
   .dashboard-section {
     background: var(--panel-bg);
@@ -332,6 +353,41 @@
   .glass-card-title { font-weight: 600; color: var(--sage-dark); font-size: 14px; }
   .glass-card-sub { font-size: 12px; color: var(--text-secondary); }
 
+  .task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .task-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    cursor: pointer;
+  }
+  .task-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--sage-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .task-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .task-completed .glass-card-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+  .task-completed .glass-card-sub {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  /* TAGS & BADGES */
   .tag {
     font-size: 11px; font-weight: 700;
     padding: 3px 10px; border-radius: 12px;
@@ -339,6 +395,8 @@
     white-space: nowrap;
   }
   .tag-gold { background: var(--gold-light); color: var(--warm-gold); border: 1px solid rgba(197, 155, 39, 0.3); }
+  .tag-completed { background: #e2f0e6; color: #2e693e; }
+  .tag-overdue { background: var(--danger-light); color: var(--danger-red); border: 1px solid rgba(201, 74, 74, 0.3); }
 
   .btn-primary {
     background: var(--sage-primary);
@@ -432,6 +490,7 @@
     .share-box { flex-direction: column; align-items: stretch; text-align: left; }
     .btn-secondary { width: 100%; text-align: center; }
     .glass-card-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .task-item { flex-direction: column; align-items: flex-start; }
     .pwa-banner { flex-direction: column; align-items: stretch; text-align: center; }
     .pwa-banner-actions { justify-content: center; }
   }
@@ -470,7 +529,6 @@
 
   <main class="main-content">
     
-    <!-- BANNIÈRE PWA (Propre et discrète en haut de la page) -->
     <div id="pwaBanner" class="pwa-banner">
       <div class="pwa-banner-info">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -494,41 +552,77 @@
       </div>
     </div>
 
+    <!-- PRESTATION VISUELLE DES STATISTIQUES MISE À JOUR -->
     <div class="metrics-grid">
       <div class="metric-card">
-        <div>
-          <div style="font-size: 12px; color: var(--text-secondary);">Tâches en cours</div>
-          <div class="metric-num" id="mTasks">0</div>
+        <div class="metric-header">
+          <span class="metric-title">Avancement Tâches</span>
+          <span class="tag" id="mTasksPercent">0%</span>
         </div>
-        <span class="tag">Planning</span>
-      </div>
-      <div class="metric-card">
         <div>
-          <div style="font-size: 12px; color: var(--text-secondary);">Prestataires</div>
+          <div class="metric-num" id="mTasksNum">0/0</div>
+          <div class="metric-sub" id="mTasksSub">0 en attente</div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="mTasksBar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Prestataires</span>
+          <span class="tag tag-gold">Partenaires</span>
+        </div>
+        <div>
           <div class="metric-num" id="mProv">0</div>
+          <div class="metric-sub">Contacts confirmés</div>
         </div>
-        <span class="tag">Partenaires</span>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill gold" style="width: 100%;"></div>
+        </div>
       </div>
+
       <div class="metric-card">
-        <div>
-          <div style="font-size: 12px; color: var(--text-secondary);">Invités confirmés</div>
-          <div class="metric-num" id="mGuests">0</div>
+        <div class="metric-header">
+          <span class="metric-title">Placement Invités</span>
+          <span class="tag" id="mGuestsPercent">0%</span>
         </div>
-        <span class="tag">Présences</span>
+        <div>
+          <div class="metric-num" id="mGuestsNum">0/0</div>
+          <div class="metric-sub" id="mGuestsSub">0 sans table</div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="mGuestsBar" style="width: 0%;"></div>
+        </div>
       </div>
     </div>
 
     <section class="dashboard-section active" id="panel-tasks">
       <div class="section-header">
-        <div class="section-title">Tâches & Feuille de Route</div>
-        <button class="btn-primary" onclick="toggleForm('fTask')">Ajouter une tâche</button>
+        <div class="section-title">Tâches & Choses à Faire</div>
+        <button class="btn-primary" onclick="openAddTaskForm()">Ajouter une tâche</button>
       </div>
 
-      <form class="glass-form" id="fTask" onsubmit="addTask(event)">
-        <input type="text" id="tTitle" placeholder="Nom de la tâche" class="input-field" required>
-        <input type="text" id="tNote" placeholder="Détails ou instructions" class="input-field">
-        <input type="date" id="tDate" class="input-field" required>
-        <button type="submit" class="btn-primary">Enregistrer la tâche</button>
+      <form class="glass-form" id="fTask" onsubmit="saveTask(event)">
+        <input type="hidden" id="tEditIndex" value="-1">
+        <input type="text" id="tTitle" placeholder="Nom de la tâche (ex. Contacter le traiteur)" class="input-field" required>
+        <input type="text" id="tNote" placeholder="Détails ou instructions (Optionnel)" class="input-field">
+        
+        <select id="tPeriod" class="select-field" onchange="handlePeriodChange(this.value)" required>
+          <option value="Aujourd'hui">Aujourd'hui</option>
+          <option value="Demain">Demain</option>
+          <option value="La semaine prochaine" selected>La semaine prochaine</option>
+          <option value="Ce mois-ci">Ce mois-ci</option>
+          <option value="Plus tard">Plus tard</option>
+          <option value="custom">Choisir une date...</option>
+        </select>
+
+        <input type="date" id="tCustomDate" class="input-field" style="display: none;">
+
+        <div style="display: flex; gap: 8px;">
+          <button type="submit" class="btn-primary" id="btnSaveTask" style="flex: 1;">Enregistrer la tâche</button>
+          <button type="button" class="btn-outline" onclick="closeTaskForm()">Annuler</button>
+        </div>
       </form>
 
       <div class="item-list" id="taskList"></div>
@@ -628,7 +722,6 @@
 </div>
 
 <script>
-  /* GESTION PWA DE LA BANNIÈRE D'INSTALLATION */
   let deferredPrompt;
   const pwaBanner = document.getElementById('pwaBanner');
 
@@ -660,7 +753,7 @@
       }
       deferredPrompt = null;
     } else if (isIos()) {
-      alert("Pour installer l'application sur votre iPhone :\n1. Cliquez sur le bouton 'Partager' (icône carré avec une flèche vers le haut)\n2. Sélectionnez 'Sur l'écran d'accueil'");
+      alert("Pour installer l'application sur votre iPhone :\n1. Cliquez sur le bouton 'Partager'\n2. Sélectionnez 'Sur l'écran d'accueil'");
     } else {
       alert("L'application est déjà installée ou votre navigateur ne supporte pas le téléchargement direct.");
     }
@@ -763,16 +856,122 @@
     alert("Lien de partage copié ! Les personnes ouvrant ce lien auront un accès complet pour modifier le projet.");
   }
 
-  function addTask(e) {
-    e.preventDefault();
-    tasks.push({
-      title: document.getElementById('tTitle').value,
-      note: document.getElementById('tNote').value,
-      date: document.getElementById('tDate').value
-    });
+  function calculateDueDate(period, customDateVal) {
+    if (period === 'custom' && customDateVal) return customDateVal;
+    
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+
+    if (period === "Aujourd'hui") {
+      // Date d'aujourd'hui
+    } else if (period === "Demain") {
+      d.setDate(d.getDate() + 1);
+    } else if (period === "La semaine prochaine") {
+      d.setDate(d.getDate() + 7);
+    } else if (period === "Ce mois-ci") {
+      d.setDate(d.getDate() + 30);
+    } else {
+      return null;
+    }
+
+    return d.toISOString().split('T')[0];
+  }
+
+  function handlePeriodChange(val) {
+    const customInput = document.getElementById('tCustomDate');
+    if (val === 'custom') {
+      customInput.style.display = 'block';
+      customInput.required = true;
+    } else {
+      customInput.style.display = 'none';
+      customInput.required = false;
+    }
+  }
+
+  function openAddTaskForm() {
+    document.getElementById('tEditIndex').value = "-1";
     document.getElementById('fTask').reset();
-    toggleForm('fTask');
+    handlePeriodChange("La semaine prochaine");
+    document.getElementById('btnSaveTask').textContent = "Enregistrer la tâche";
+    document.getElementById('fTask').classList.add('open');
+  }
+
+  function editTask(index) {
+    const task = tasks[index];
+    document.getElementById('tEditIndex').value = index;
+    document.getElementById('tTitle').value = task.title;
+    document.getElementById('tNote').value = task.note || "";
+    
+    if (task.dueDate && !["Aujourd'hui", "Demain", "La semaine prochaine", "Ce mois-ci", "Plus tard"].includes(task.period)) {
+      document.getElementById('tPeriod').value = 'custom';
+      document.getElementById('tCustomDate').value = task.dueDate;
+      handlePeriodChange('custom');
+    } else {
+      document.getElementById('tPeriod').value = task.period || "La semaine prochaine";
+      handlePeriodChange(task.period);
+    }
+
+    document.getElementById('btnSaveTask').textContent = "Enregistrer les modifications";
+    document.getElementById('fTask').classList.add('open');
+  }
+
+  function closeTaskForm() {
+    document.getElementById('fTask').reset();
+    document.getElementById('tEditIndex').value = "-1";
+    document.getElementById('tCustomDate').style.display = 'none';
+    document.getElementById('fTask').classList.remove('open');
+  }
+
+  function saveTask(e) {
+    e.preventDefault();
+    const editIndex = parseInt(document.getElementById('tEditIndex').value, 10);
+    const title = document.getElementById('tTitle').value;
+    const note = document.getElementById('tNote').value;
+    const period = document.getElementById('tPeriod').value;
+    const customDate = document.getElementById('tCustomDate').value;
+
+    const dueDate = calculateDueDate(period, customDate);
+
+    if (editIndex === -1) {
+      tasks.push({ title, note, period, dueDate, completed: false });
+    } else {
+      tasks[editIndex] = { ...tasks[editIndex], title, note, period, dueDate };
+    }
+
+    closeTaskForm();
     syncToCloud();
+  }
+
+  function toggleTaskComplete(index) {
+    tasks[index].completed = !tasks[index].completed;
+    syncToCloud();
+  }
+
+  function deleteTask(index) {
+    if (confirm(`Voulez-vous vraiment supprimer la tâche "${tasks[index].title}" ?`)) {
+      tasks.splice(index, 1);
+      syncToCloud();
+    }
+  }
+
+  function getTaskStatus(task) {
+    if (task.completed) {
+      return { label: 'Terminé', class: 'tag-completed' };
+    }
+
+    if (!task.dueDate) {
+      return { label: task.period || 'À faire', class: 'tag' };
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    if (task.dueDate < todayStr) {
+      return { label: 'En retard', class: 'tag-overdue' };
+    } else if (task.dueDate === todayStr) {
+      return { label: "Aujourd'hui", class: 'tag-gold' };
+    } else {
+      return { label: task.period || task.dueDate, class: 'tag' };
+    }
   }
 
   function addProv(e) {
@@ -895,10 +1094,33 @@
       tables.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
   }
 
+  /* RENDU DES CALCULS DES STATISTIQUES AVEC DÉTAILS DYNAMIQUES */
   function render() {
-    document.getElementById('mTasks').textContent = tasks.length;
+    // Calcul Tâches
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const pendingTasks = totalTasks - completedTasks;
+    const taskPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    document.getElementById('mTasksPercent').textContent = `${taskPct}%`;
+    document.getElementById('mTasksNum').textContent = `${completedTasks}/${totalTasks}`;
+    document.getElementById('mTasksSub').textContent = `${pendingTasks} restante(s)`;
+    document.getElementById('mTasksBar').style.width = `${taskPct}%`;
+
+    // Calcul Prestataires
     document.getElementById('mProv').textContent = provs.length;
-    document.getElementById('mGuests').textContent = guests.length;
+
+    // Calcul Invités placés
+    const totalGuests = guests.length;
+    const placedGuests = guests.filter(g => g.table && g.table.trim() !== "").length;
+    const unplacedGuests = totalGuests - placedGuests;
+    const guestPct = totalGuests > 0 ? Math.round((placedGuests / totalGuests) * 100) : 0;
+
+    document.getElementById('mGuestsPercent').textContent = `${guestPct}%`;
+    document.getElementById('mGuestsNum').textContent = `${placedGuests}/${totalGuests}`;
+    document.getElementById('mGuestsSub').textContent = `${unplacedGuests} non assigné(s)`;
+    document.getElementById('mGuestsBar').style.width = `${guestPct}%`;
+
     document.getElementById('teamCount').textContent = team.length;
 
     const btnInvite = document.getElementById('btnInvite');
@@ -910,17 +1132,31 @@
       btnInvite.textContent = "Ajouter un membre";
     }
 
+    /* RENDU TASKS */
     document.getElementById('taskList').innerHTML = tasks.length === 0 
       ? '<div class="glass-card-sub">Aucune tâche enregistrée.</div>'
-      : tasks.map(t => `
-        <div class="glass-card">
-          <div class="glass-card-header">
-            <span class="glass-card-title">${t.title}</span>
-            <span class="tag">${t.date}</span>
+      : tasks.map((t, i) => {
+        const status = getTaskStatus(t);
+
+        return `
+          <div class="glass-card ${t.completed ? 'task-completed' : ''}">
+            <div class="task-item">
+              <div class="task-left" onclick="toggleTaskComplete(${i})">
+                <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskComplete(${i})">
+                <div class="task-content">
+                  <span class="glass-card-title">${t.title}</span>
+                  ${t.note ? `<span class="glass-card-sub">${t.note}</span>` : ''}
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="${status.class}">${status.label}</span>
+                <button class="btn-outline" onclick="editTask(${i})">Modifier</button>
+                <button class="btn-danger" onclick="deleteTask(${i})">Supprimer</button>
+              </div>
+            </div>
           </div>
-          ${t.note ? `<div class="glass-card-sub">${t.note}</div>` : ''}
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
     document.getElementById('provList').innerHTML = provs.length === 0
       ? '<div class="glass-card-sub">Aucun prestataire enregistré.</div>'
@@ -995,7 +1231,13 @@
   window.updateCountdown = () => { updateCountdown(); syncToCloud(); };
   window.toggleForm = toggleForm;
   window.copyShareLink = copyShareLink;
-  window.addTask = addTask;
+  window.handlePeriodChange = handlePeriodChange;
+  window.openAddTaskForm = openAddTaskForm;
+  window.editTask = editTask;
+  window.closeTaskForm = closeTaskForm;
+  window.saveTask = saveTask;
+  window.toggleTaskComplete = toggleTaskComplete;
+  window.deleteTask = deleteTask;
   window.addProv = addProv;
   window.openAddGuestForm = openAddGuestForm;
   window.editGuest = editGuest;
