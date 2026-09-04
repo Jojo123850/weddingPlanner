@@ -170,25 +170,57 @@
     margin-top: 4px;
   }
 
-  .btn-install {
-    display: none; /* Masqué par défaut, activé si éligible */
+  /* BANNIÈRE D'INSTALLATION PWA DISCRÈTE ET BIEN PLACÉE */
+  .pwa-banner {
+    display: none;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    background: var(--sage-dark);
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    gap: 12px;
+  }
+
+  .pwa-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .pwa-banner-actions {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    width: 100%;
-    margin-top: 16px;
-    padding: 10px 14px;
+  }
+
+  .btn-banner-install {
     background: var(--warm-gold);
     color: #ffffff;
     border: none;
-    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 3px 10px rgba(197, 155, 39, 0.3);
-    transition: all 0.2s ease;
+    transition: background 0.2s;
+    white-space: nowrap;
   }
-  .btn-install:hover { background: #b0891e; }
+  .btn-banner-install:hover { background: #b0891e; }
+
+  .btn-banner-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .btn-banner-close:hover { color: #ffffff; }
 
   .nav-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 24px; }
   .nav-btn {
@@ -400,6 +432,8 @@
     .share-box { flex-direction: column; align-items: stretch; text-align: left; }
     .btn-secondary { width: 100%; text-align: center; }
     .glass-card-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .pwa-banner { flex-direction: column; align-items: stretch; text-align: center; }
+    .pwa-banner-actions { justify-content: center; }
   }
 </style>
 </head>
@@ -420,12 +454,6 @@
         </div>
       </div>
 
-      <!-- BOUTON D'INSTALLATION PWA -->
-      <button id="pwaInstallBtn" class="btn-install" onclick="triggerPwaInstall()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Installer sur l'écran d'accueil
-      </button>
-      
       <nav class="nav-menu">
         <button class="nav-btn active" data-tab="tasks">Tâches & Planning</button>
         <button class="nav-btn" data-tab="providers">Prestataires</button>
@@ -442,6 +470,18 @@
 
   <main class="main-content">
     
+    <!-- BANNIÈRE PWA (Propre et discrète en haut de la page) -->
+    <div id="pwaBanner" class="pwa-banner">
+      <div class="pwa-banner-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>Ajoutez l'application sur votre écran d'accueil pour un accès rapide.</span>
+      </div>
+      <div class="pwa-banner-actions">
+        <button class="btn-banner-install" onclick="triggerPwaInstall()">Installer</button>
+        <button class="btn-banner-close" onclick="dismissPwaBanner()" title="Fermer">✕</button>
+      </div>
+    </div>
+
     <div class="hero-card">
       <div class="hero-info">
         <h1>Martiny & Ezekia's Wedding Organization</h1>
@@ -588,28 +628,26 @@
 </div>
 
 <script>
-  /* GESTION DE L'INSTALLATION PWA (ÉCRAN D'ACCUEIL) */
+  /* GESTION PWA DE LA BANNIÈRE D'INSTALLATION */
   let deferredPrompt;
-  const installBtn = document.getElementById('pwaInstallBtn');
+  const pwaBanner = document.getElementById('pwaBanner');
 
-  // Détection des appareils iOS
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     return /iphone|ipad|ipod/.test(userAgent);
   };
 
-  // Détection si déjà installé
   const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) installBtn.style.display = 'flex';
+    if (pwaBanner) pwaBanner.style.display = 'flex';
   });
 
   window.addEventListener('DOMContentLoaded', () => {
     if (isIos() && !isInStandaloneMode()) {
-      if (installBtn) installBtn.style.display = 'flex';
+      if (pwaBanner) pwaBanner.style.display = 'flex';
     }
   });
 
@@ -618,7 +656,7 @@
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        installBtn.style.display = 'none';
+        dismissPwaBanner();
       }
       deferredPrompt = null;
     } else if (isIos()) {
@@ -626,6 +664,10 @@
     } else {
       alert("L'application est déjà installée ou votre navigateur ne supporte pas le téléchargement direct.");
     }
+  };
+
+  window.dismissPwaBanner = () => {
+    if (pwaBanner) pwaBanner.style.display = 'none';
   };
 </script>
 
@@ -745,7 +787,6 @@
     syncToCloud();
   }
 
-  /* --- Gestion Invités --- */
   function openAddGuestForm() {
     document.getElementById('gEditIndex').value = "-1";
     document.getElementById('fGuest').reset();
