@@ -15,18 +15,15 @@
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSU_E_M_PWA_ICON_FIXED">
 
 <script>
-  // Conversion dynamique Canvas Vers PNG 512x512 pour le Manifest & iOS
   function createIconDataURL() {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    // Fond
     ctx.fillStyle = '#FAF7F2';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Bords arrondis décoratifs
     ctx.fillStyle = '#2D4A3E';
     ctx.font = 'bold 220px serif';
     ctx.fillText('E', 80, 330);
@@ -44,11 +41,9 @@
   window.addEventListener('DOMContentLoaded', () => {
     const pngIcon = createIconDataURL();
     
-    // Injecter le PNG pour Apple Touch Icon
     const appleIcon = document.querySelector("link[rel='apple-touch-icon']");
     if(appleIcon) appleIcon.href = pngIcon;
 
-    // Generer le Manifest avec icônes PNG compatibles iOS
     const manifestData = {
       "short_name": "Mariage E&M",
       "name": "Martiny & Ezekia — Dashboard",
@@ -94,6 +89,8 @@
     
     --warm-gold: #c59b27;
     --gold-light: #fef9e7;
+    --danger-red: #c94a4a;
+    --danger-light: #fdf2f2;
     
     --card-bg: #ffffff;
     --card-hover: #faf8f5;
@@ -130,7 +127,6 @@
     gap: 24px;
   }
 
-  /* Header Brand */
   .brand-header {
     display: flex;
     align-items: center;
@@ -143,7 +139,6 @@
     flex-shrink: 0;
   }
 
-  /* Sidebar */
   .sidebar {
     width: 280px;
     flex-shrink: 0;
@@ -195,7 +190,6 @@
     box-shadow: 0 4px 14px rgba(82, 121, 93, 0.3);
   }
 
-  /* Main Area */
   .main-content {
     flex: 1;
     display: flex;
@@ -243,7 +237,6 @@
     cursor: pointer;
   }
 
-  /* Metrics */
   .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .metric-card {
     background: var(--panel-bg);
@@ -256,7 +249,6 @@
   }
   .metric-num { font-size: 26px; font-weight: 800; color: var(--sage-dark); margin-top: 6px; }
 
-  /* Sections */
   .dashboard-section {
     background: var(--panel-bg);
     backdrop-filter: var(--blur);
@@ -273,7 +265,6 @@
   .section-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .section-title { font-size: 16px; font-weight: 700; color: var(--sage-dark); }
 
-  /* Cards & Lists */
   .item-list { display: flex; flex-direction: column; gap: 10px; }
   .glass-card {
     background: var(--card-bg);
@@ -297,7 +288,6 @@
   }
   .tag-gold { background: var(--gold-light); color: var(--warm-gold); border: 1px solid rgba(197, 155, 39, 0.3); }
 
-  /* Buttons & Forms */
   .btn-primary {
     background: var(--sage-primary);
     color: #fff; border: none;
@@ -332,6 +322,19 @@
   }
   .btn-outline:hover { background: var(--sage-light); }
 
+  .btn-danger {
+    background: transparent;
+    color: var(--danger-red);
+    border: 1px solid var(--danger-red);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-danger:hover { background: var(--danger-light); }
+
   .glass-form {
     display: none; flex-direction: column; gap: 12px;
     background: #ffffff; border: 1px solid var(--panel-border);
@@ -362,7 +365,6 @@
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
 
-  /* Responsive Mobile */
   @media (max-width: 768px) {
     .app-container { flex-direction: column; padding: 12px; gap: 16px; }
     .sidebar { width: 100%; padding: 16px; border-radius: var(--radius-lg); }
@@ -485,16 +487,20 @@
     <section class="dashboard-section" id="panel-guests">
       <div class="section-header">
         <div class="section-title">Liste des Invités</div>
-        <button class="btn-primary" onclick="toggleForm('fGuest')">Ajouter un invité</button>
+        <button class="btn-primary" onclick="openAddGuestForm()">Ajouter un invité</button>
       </div>
 
-      <form class="glass-form" id="fGuest" onsubmit="addGuest(event)">
+      <form class="glass-form" id="fGuest" onsubmit="saveGuest(event)">
+        <input type="hidden" id="gEditIndex" value="-1">
         <input type="text" id="gName" placeholder="Nom et prénom" class="input-field" required>
         <input type="text" id="gDiet" placeholder="Régime alimentaire ou remarques" class="input-field">
         <select id="gTable" class="select-field">
           <option value="">-- Assigner à une table (Optionnel) --</option>
         </select>
-        <button type="submit" class="btn-primary">Enregistrer l'invité</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="submit" class="btn-primary" id="btnSaveGuest" style="flex: 1;">Enregistrer l'invité</button>
+          <button type="button" class="btn-outline" onclick="closeGuestForm()">Annuler</button>
+        </div>
       </form>
 
       <div class="item-list" id="guestList"></div>
@@ -555,14 +561,63 @@
   </main>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBPu_jOMTaEx7UbQ8w1xfyZEnaWanBZTAo",
+    authDomain: "wedding-7d389.firebaseapp.com",
+    projectId: "wedding-7d389",
+    storageBucket: "wedding-7d389.firebasestorage.app",
+    messagingSenderId: "879744708382",
+    appId: "1:879744708382:web:018958dbc35f2bb56b230f",
+    measurementId: "G-2JS6VJC6SX"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const docRef = doc(db, "weddingData", "dashboard");
+
   let tasks = [], provs = [], guests = [], tables = [];
   let team = [
     { name: "Martiny", email: "martiny@mariage.com", role: "Marié(e)" },
     { name: "Ezekia", email: "ezekia@mariage.com", role: "Marié(e)" }
   ];
 
-  /* Calcul du Compte à Rebours Dynamique */
+  onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      tasks = data.tasks || [];
+      provs = data.provs || [];
+      guests = data.guests || [];
+      tables = data.tables || [];
+      team = data.team || [];
+      
+      if (data.weddingDate) {
+        document.getElementById('weddingDate').value = data.weddingDate;
+      }
+    }
+    updateCountdown();
+    updateTableOptions();
+    render();
+  });
+
+  async function syncToCloud() {
+    try {
+      await setDoc(docRef, {
+        tasks,
+        provs,
+        guests,
+        tables,
+        team,
+        weddingDate: document.getElementById('weddingDate').value || ""
+      });
+    } catch (e) {
+      console.error("Erreur de sauvegarde Firebase :", e);
+    }
+  }
+
   function updateCountdown() {
     const inputDate = document.getElementById('weddingDate').value;
     const cdVal = document.getElementById('cdVal');
@@ -571,8 +626,6 @@
       cdVal.textContent = "Définir date";
       return;
     }
-
-    localStorage.setItem('savedWeddingDate', inputDate);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -591,14 +644,6 @@
     }
   }
 
-  function initWeddingDate() {
-    const saved = localStorage.getItem('savedWeddingDate');
-    if (saved) {
-      document.getElementById('weddingDate').value = saved;
-      updateCountdown();
-    }
-  }
-
   function toggleForm(id) {
     document.getElementById(id).classList.toggle('open');
   }
@@ -608,16 +653,6 @@
     alert("Lien de partage copié ! Les personnes ouvrant ce lien auront un accès complet pour modifier le projet.");
   }
 
-  // Navigation
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-    });
-  });
-
   function addTask(e) {
     e.preventDefault();
     tasks.push({
@@ -625,7 +660,9 @@
       note: document.getElementById('tNote').value,
       date: document.getElementById('tDate').value
     });
-    document.getElementById('fTask').reset(); toggleForm('fTask'); render();
+    document.getElementById('fTask').reset();
+    toggleForm('fTask');
+    syncToCloud();
   }
 
   function addProv(e) {
@@ -635,17 +672,57 @@
       cat: document.getElementById('pCat').value,
       contact: document.getElementById('pContact').value
     });
-    document.getElementById('fProv').reset(); toggleForm('fProv'); render();
+    document.getElementById('fProv').reset();
+    toggleForm('fProv');
+    syncToCloud();
   }
 
-  function addGuest(e) {
+  /* --- Gestion Invités --- */
+  function openAddGuestForm() {
+    document.getElementById('gEditIndex').value = "-1";
+    document.getElementById('fGuest').reset();
+    document.getElementById('btnSaveGuest').textContent = "Enregistrer l'invité";
+    document.getElementById('fGuest').classList.add('open');
+  }
+
+  function editGuest(index) {
+    const guest = guests[index];
+    document.getElementById('gEditIndex').value = index;
+    document.getElementById('gName').value = guest.name;
+    document.getElementById('gDiet').value = guest.diet || "";
+    document.getElementById('gTable').value = guest.table || "";
+    document.getElementById('btnSaveGuest').textContent = "Enregistrer les modifications";
+    document.getElementById('fGuest').classList.add('open');
+  }
+
+  function closeGuestForm() {
+    document.getElementById('fGuest').reset();
+    document.getElementById('gEditIndex').value = "-1";
+    document.getElementById('fGuest').classList.remove('open');
+  }
+
+  function saveGuest(e) {
     e.preventDefault();
-    guests.push({
-      name: document.getElementById('gName').value,
-      diet: document.getElementById('gDiet').value,
-      table: document.getElementById('gTable').value
-    });
-    document.getElementById('fGuest').reset(); toggleForm('fGuest'); render();
+    const editIndex = parseInt(document.getElementById('gEditIndex').value, 10);
+    const name = document.getElementById('gName').value;
+    const diet = document.getElementById('gDiet').value;
+    const table = document.getElementById('gTable').value;
+
+    if (editIndex === -1) {
+      guests.push({ name, diet, table });
+    } else {
+      guests[editIndex] = { name, diet, table };
+    }
+
+    closeGuestForm();
+    syncToCloud();
+  }
+
+  function deleteGuest(index) {
+    if (confirm(`Voulez-vous vraiment supprimer "${guests[index].name}" de la liste ?`)) {
+      guests.splice(index, 1);
+      syncToCloud();
+    }
   }
 
   function addTable(e) {
@@ -654,10 +731,11 @@
       name: document.getElementById('tabName').value,
       cap: document.getElementById('tabCap').value || '10'
     });
-    document.getElementById('fTable').reset(); toggleForm('fTable'); updateTableOptions(); render();
+    document.getElementById('fTable').reset();
+    toggleForm('fTable');
+    syncToCloud();
   }
 
-  /* Gestion Équipe */
   function openAddTeamForm() {
     document.getElementById('mEditIndex').value = "-1";
     document.getElementById('fTeam').reset();
@@ -699,7 +777,7 @@
     }
 
     closeTeamForm();
-    render();
+    syncToCloud();
   }
 
   function updateTableOptions() {
@@ -723,7 +801,6 @@
       btnInvite.textContent = "Ajouter un membre";
     }
 
-    // Tâches
     document.getElementById('taskList').innerHTML = tasks.length === 0 
       ? '<div class="glass-card-sub">Aucune tâche enregistrée.</div>'
       : tasks.map(t => `
@@ -736,7 +813,6 @@
         </div>
       `).join('');
 
-    // Prestataires
     document.getElementById('provList').innerHTML = provs.length === 0
       ? '<div class="glass-card-sub">Aucun prestataire enregistré.</div>'
       : provs.map(p => `
@@ -749,20 +825,23 @@
         </div>
       `).join('');
 
-    // Invités
+    // Affichage des invités avec Modifier et Supprimer
     document.getElementById('guestList').innerHTML = guests.length === 0
       ? '<div class="glass-card-sub">Aucun invité enregistré.</div>'
-      : guests.map(g => `
+      : guests.map((g, i) => `
         <div class="glass-card">
           <div class="glass-card-header">
             <span class="glass-card-title">${g.name}</span>
-            <span class="tag">${g.table ? 'Table : ' + g.table : 'Sans table'}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="tag">${g.table ? 'Table : ' + g.table : 'Sans table'}</span>
+              <button class="btn-outline" onclick="editGuest(${i})">Modifier</button>
+              <button class="btn-danger" onclick="deleteGuest(${i})">Supprimer</button>
+            </div>
           </div>
           ${g.diet ? `<div class="glass-card-sub">Remarques : ${g.diet}</div>` : ''}
         </div>
       `).join('');
 
-    // Tables
     document.getElementById('tableList').innerHTML = tables.length === 0
       ? '<div class="glass-card-sub">Aucune table configurée.</div>'
       : tables.map(tb => {
@@ -782,7 +861,6 @@
         `;
       }).join('');
 
-    // Équipe avec modification
     document.getElementById('teamList').innerHTML = team.map((m, i) => `
       <div class="glass-card">
         <div class="glass-card-header">
@@ -797,9 +875,30 @@
     `).join('');
   }
 
-  initWeddingDate();
-  updateTableOptions();
-  render();
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  window.updateCountdown = () => { updateCountdown(); syncToCloud(); };
+  window.toggleForm = toggleForm;
+  window.copyShareLink = copyShareLink;
+  window.addTask = addTask;
+  window.addProv = addProv;
+  window.openAddGuestForm = openAddGuestForm;
+  window.editGuest = editGuest;
+  window.closeGuestForm = closeGuestForm;
+  window.saveGuest = saveGuest;
+  window.deleteGuest = deleteGuest;
+  window.addTable = addTable;
+  window.openAddTeamForm = openAddTeamForm;
+  window.editTeamMember = editTeamMember;
+  window.closeTeamForm = closeTeamForm;
+  window.saveTeamMember = saveTeamMember;
 </script>
 </body>
 </html>
